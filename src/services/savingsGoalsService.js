@@ -34,7 +34,7 @@ export async function contributeToGoal({ userId, goalId, amount }) {
     throw new Error('Monto inválido')
   }
 
-  // ✅ 1. Obtener balance (CORREGIDO: balances)
+  // 1. Obtener balance
   const { data: balanceData, error: balanceError } = await supabase
     .from('balances')
     .select('*')
@@ -61,7 +61,7 @@ export async function contributeToGoal({ userId, goalId, amount }) {
   const nuevoSaldoDisponible = saldoActual - contributionAmount
   const nuevoMontoMeta = Number(goalData.current_amount || 0) + contributionAmount
 
-  // ✅ 3. Actualizar balance (CORREGIDO: balances)
+  // 3. Actualizar balance
   const { error: updateBalanceError } = await supabase
     .from('balances')
     .update({ saldo_gastos: nuevoSaldoDisponible })
@@ -77,7 +77,7 @@ export async function contributeToGoal({ userId, goalId, amount }) {
 
   if (updateGoalError) throw updateGoalError
 
-  // 5. Registrar contribución
+  // ✅ 5. Registrar contribución con fecha robusta
   const { data, error } = await supabase
     .from('goal_contributions')
     .insert([
@@ -85,6 +85,7 @@ export async function contributeToGoal({ userId, goalId, amount }) {
         user_id: userId,
         goal_id: goalId,
         amount: contributionAmount,
+        created_at: new Date().toISOString(),
       },
     ])
     .select()
