@@ -39,6 +39,28 @@ function getItemIconClass(type) {
   return 'transaction-icon--goal'
 }
 
+// ✅ Parseo robusto para ordenar bien
+function safeTimestamp(dateValue) {
+  if (!dateValue) return 0
+
+  const parsed = new Date(dateValue).getTime()
+
+  if (Number.isNaN(parsed)) return 0
+
+  return parsed
+}
+
+// ✅ Formateo seguro para mostrar bien
+function formatSafeDate(dateValue) {
+  if (!dateValue) return 'Sin fecha'
+
+  const parsed = new Date(dateValue)
+
+  if (Number.isNaN(parsed.getTime())) return 'Sin fecha'
+
+  return parsed.toLocaleString('es-CO')
+}
+
 export default function History() {
   const { user } = useAuth()
   const { monthly, refreshMonthly } = useFinances(user?.id)
@@ -56,7 +78,8 @@ export default function History() {
         type: 'goal',
         description: `Meta creada: ${goal.name}`,
         amount: Number(goal.target_amount || 0),
-        created_at: goal.created_at,
+        created_at: goal.created_at || null,
+        timestamp: safeTimestamp(goal.created_at),
         raw: goal,
       })),
     [goals]
@@ -69,7 +92,8 @@ export default function History() {
         type: 'contribution',
         description: `Abono a meta: ${c.savings_goals?.name || ''}`,
         amount: Number(c.amount || 0),
-        created_at: c.created_at,
+        created_at: c.created_at || null,
+        timestamp: safeTimestamp(c.created_at),
         raw: c,
       })),
     [contributions]
@@ -80,6 +104,8 @@ export default function History() {
       (transactions || []).map((tx) => ({
         ...tx,
         amount: Number(tx.amount || 0),
+        created_at: tx.created_at || null,
+        timestamp: safeTimestamp(tx.created_at),
         raw: tx,
       })),
     [transactions]
@@ -90,7 +116,7 @@ export default function History() {
       ...transactionsAsHistory,
       ...goalsAsHistory,
       ...contributionsAsHistory,
-    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    ].sort((a, b) => b.timestamp - a.timestamp)
   }, [transactionsAsHistory, goalsAsHistory, contributionsAsHistory])
 
   const filteredItems = useMemo(() => {
@@ -125,9 +151,6 @@ export default function History() {
         return
       }
 
-      // =========================================================
-      // 1) ELIMINAR INGRESO
-      // =========================================================
       if (item.type === 'income') {
         const tx = item.raw
         const amount = Number(tx.amount || 0)
@@ -172,9 +195,6 @@ export default function History() {
         return
       }
 
-      // =========================================================
-      // 2) ELIMINAR GASTO
-      // =========================================================
       if (item.type === 'expense') {
         const tx = item.raw
         const amount = Number(tx.amount || 0)
@@ -209,9 +229,6 @@ export default function History() {
         return
       }
 
-      // =========================================================
-      // 3) ELIMINAR META (USAR RPC)
-      // =========================================================
       if (item.type === 'goal') {
         const goalId = item.id
 
@@ -233,9 +250,6 @@ export default function History() {
         return
       }
 
-      // =========================================================
-      // 4) ELIMINAR ABONO
-      // =========================================================
       if (item.type === 'contribution') {
         const contribution = item.raw
         const amount = Number(contribution.amount || 0)
@@ -391,7 +405,7 @@ export default function History() {
 
                     <p className="history-item-title">{item.description}</p>
                     <span className="history-item-date">
-                      {new Date(item.created_at).toLocaleString('es-CO')}
+                      {formatSafeDate(item.created_at)}
                     </span>
                   </div>
                 </div>
