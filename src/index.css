@@ -4094,3 +4094,13 @@ textarea {
 .goal-preview-panel {
   margin-bottom: 40px;
 }
+/* 🔥 FIX TEXTO NAVBAR MÓVIL */
+.top-nav-link {
+  font-size: 13px;
+  letter-spacing: 0.3px;
+}
+
+/* 🔥 EVITA QUE PALABRAS SE DISTORSIONEN */
+.top-nav-link {
+  white-space: nowrap;
+}

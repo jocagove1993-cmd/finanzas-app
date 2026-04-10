@@ -27,15 +27,14 @@ export default function Navbar(props) {
     { key: 'expense', label: 'Gasto' },
     { key: 'history', label: 'Historial' },
     { key: 'goals', label: 'Metas' },
-    { key: 'monthly', label: 'Mensual' }, // 🔥 NUEVO
-    { key: 'settings', label: 'Configuración' },
+    { key: 'monthly', label: 'Mensual 📊' }, // 🔥 FIX VISUAL
+    { key: 'settings', label: 'Config' }, // 🔥 más corto en móvil
   ]
 
   return (
     <header className="topbar">
       <div className="topbar-inner">
 
-        {/* 🔹 LOGO */}
         <div className="brand-block">
           <div className="brand-logo">💸</div>
           <div className="brand-copy">
@@ -44,7 +43,6 @@ export default function Navbar(props) {
           </div>
         </div>
 
-        {/* 🔹 NAV */}
         <nav className="top-nav">
           {items.map((item) => (
             <button
@@ -57,7 +55,6 @@ export default function Navbar(props) {
           ))}
         </nav>
 
-        {/* 🔹 USER */}
         <div className="topbar-user">
           <div className="user-mini-avatar">👤</div>
 
