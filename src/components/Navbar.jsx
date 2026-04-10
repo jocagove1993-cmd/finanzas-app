@@ -21,9 +21,6 @@ export default function Navbar(props) {
     window.location.reload()
   }
 
-  const displayName = userName || nombre || 'Usuario'
-  const initial = displayName.charAt(0).toUpperCase()
-
   const items = [
     { key: 'dashboard', label: 'Panel' },
     { key: 'income', label: 'Ingreso' },
@@ -37,7 +34,7 @@ export default function Navbar(props) {
     <header className="topbar">
       <div className="topbar-inner">
 
-        {/* IZQUIERDA */}
+        {/* 🔹 LOGO */}
         <div className="brand-block">
           <div className="brand-logo">💸</div>
           <div className="brand-copy">
@@ -46,7 +43,7 @@ export default function Navbar(props) {
           </div>
         </div>
 
-        {/* CENTRO */}
+        {/* 🔹 NAV */}
         <nav className="top-nav">
           {items.map((item) => (
             <button
@@ -59,11 +56,9 @@ export default function Navbar(props) {
           ))}
         </nav>
 
-        {/* DERECHA */}
+        {/* 🔹 USER */}
         <div className="topbar-user">
-          <div className="user-mini-avatar">
-            {initial}
-          </div>
+          <div className="user-mini-avatar">👤</div>
 
           <button className="logout-btn" onClick={handleLogout}>
             Salir

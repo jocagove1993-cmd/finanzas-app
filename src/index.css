@@ -3877,3 +3877,61 @@ input[type='number'] {
   font-size: 14px;
   margin-right: 8px;
 }
+/* 🔥 NAVBAR RESPONSIVE CORREGIDO */
+@media (max-width: 768px) {
+
+  .topbar-inner {
+    position: relative;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* 🔥 NAV AHORA VISIBLE Y SCROLL */
+  .top-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .top-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .top-nav-link {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  /* 🔥 USER ARRIBA DERECHA */
+  .topbar-user {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* 🔥 AVATAR */
+  .user-mini-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  /* 🔥 BOTÓN */
+  .logout-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
