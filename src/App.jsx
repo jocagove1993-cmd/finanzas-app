@@ -1,8 +1,12 @@
 import { useState } from 'react'
 import { useAuth } from './hooks/useAuth'
+
 import Navbar from './components/Navbar'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+
 import Dashboard from './pages/Dashboard'
 import AddIncome from './pages/AddIncome'
 import AddExpense from './pages/AddExpense'
@@ -12,8 +16,11 @@ import SavingsGoals from './pages/SavingsGoals'
 
 export default function App() {
   const { user, nombre, loading } = useAuth()
+
   const [authView, setAuthView] = useState('login')
   const [activeView, setActiveView] = useState('dashboard')
+
+  const isRecovery = window.location.hash.includes('type=recovery')
 
   if (loading) {
     return (
@@ -23,12 +30,28 @@ export default function App() {
     )
   }
 
+  // 🔥 PRIORIDAD: RECOVERY
+  if (isRecovery) {
+    return <ResetPassword />
+  }
+
   if (!user) {
-    return authView === 'login' ? (
-      <Login onSwitchToRegister={() => setAuthView('register')} />
-    ) : (
-      <Register onSwitchToLogin={() => setAuthView('login')} />
-    )
+    if (authView === 'login') {
+      return (
+        <Login
+          onSwitchToRegister={() => setAuthView('register')}
+          onSwitchToForgot={() => setAuthView('forgot')}
+        />
+      )
+    }
+
+    if (authView === 'register') {
+      return <Register onSwitchToLogin={() => setAuthView('login')} />
+    }
+
+    if (authView === 'forgot') {
+      return <ForgotPassword onBackToLogin={() => setAuthView('login')} />
+    }
   }
 
   const renderView = () => {

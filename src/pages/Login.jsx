@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { login } from '../services/authService'
 
-export default function Login({ onSwitchToRegister }) {
+export default function Login({ onSwitchToRegister, onSwitchToForgot }) {
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -104,6 +104,20 @@ export default function Login({ onSwitchToRegister }) {
             {loading ? 'Ingresando...' : 'Iniciar sesión'}
           </button>
         </form>
+
+        {/* 🔥 AQUÍ ESTÁ EL CAMBIO CORRECTO */}
+        <p
+          style={{
+            marginTop: '12px',
+            fontSize: '14px',
+            color: '#6b7280',
+            cursor: 'pointer',
+            textAlign: 'center',
+          }}
+          onClick={onSwitchToForgot}
+        >
+          ¿Olvidaste tu contraseña?
+        </p>
 
         <p className="auth-footer">
           ¿No tienes cuenta?{' '}
