@@ -27,6 +27,7 @@ export default function Navbar(props) {
     { key: 'expense', label: 'Gasto' },
     { key: 'history', label: 'Historial' },
     { key: 'goals', label: 'Metas' },
+    { key: 'monthly', label: 'Mensual' }, // 🔥 NUEVO
     { key: 'settings', label: 'Configuración' },
   ]
 
