@@ -21,6 +21,9 @@ export default function Navbar(props) {
     window.location.reload()
   }
 
+  const displayName = userName || nombre || 'Usuario'
+  const initial = displayName.charAt(0).toUpperCase()
+
   const items = [
     { key: 'dashboard', label: 'Panel' },
     { key: 'income', label: 'Ingreso' },
@@ -34,7 +37,7 @@ export default function Navbar(props) {
     <header className="topbar">
       <div className="topbar-inner">
 
-        {/* 🔹 IZQUIERDA */}
+        {/* IZQUIERDA */}
         <div className="brand-block">
           <div className="brand-logo">💸</div>
           <div className="brand-copy">
@@ -43,12 +46,11 @@ export default function Navbar(props) {
           </div>
         </div>
 
-        {/* 🔹 CENTRO */}
+        {/* CENTRO */}
         <nav className="top-nav">
           {items.map((item) => (
             <button
               key={item.key}
-              type="button"
               className={`top-nav-link ${current === item.key ? 'active' : ''}`}
               onClick={() => setView && setView(item.key)}
             >
@@ -57,17 +59,17 @@ export default function Navbar(props) {
           ))}
         </nav>
 
-        {/* 🔹 DERECHA */}
+        {/* DERECHA */}
         <div className="topbar-user">
-          <div className="user-chip">
-            <span className="user-avatar">👤</span>
-            <span className="user-name">{userName || nombre || 'Usuario'}</span>
+          <div className="user-mini-avatar">
+            {initial}
           </div>
 
-          <button type="button" className="logout-btn" onClick={handleLogout}>
+          <button className="logout-btn" onClick={handleLogout}>
             Salir
           </button>
         </div>
+
       </div>
     </header>
   )

@@ -3863,3 +3863,17 @@ input[type='number'] {
     font-size: 12px;
   }
 }
+/* 🔥 MINI AVATAR */
+.user-mini-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  margin-right: 8px;
+}
