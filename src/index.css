@@ -4104,3 +4104,25 @@ textarea {
 .top-nav-link {
   white-space: nowrap;
 }
+.monthly-summary {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #1f2937;
+}
+
+.tx-income {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.tx-expense {
+  color: #ef4444;
+  font-weight: bold;
+}

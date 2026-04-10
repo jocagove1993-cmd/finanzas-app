@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react'
 import { getTransactions } from '../services/transactionService'
 import { useAuth } from '../hooks/useAuth'
 import { formatCOP } from '../utils/formatCurrency'
+import MonthlyDetail from './MonthlyDetail'
 
 export default function MonthlyHistory() {
   const { user } = useAuth()
   const [months, setMonths] = useState([])
   const [loading, setLoading] = useState(true)
+
+  const [selectedMonth, setSelectedMonth] = useState(null)
 
   useEffect(() => {
     if (!user?.id) return
@@ -72,20 +75,18 @@ export default function MonthlyHistory() {
     return names[month]
   }
 
-  if (loading) {
+  if (selectedMonth) {
     return (
-      <div className="page-loading">
-        <div className="spinner" />
-      </div>
+      <MonthlyDetail
+        month={selectedMonth.month}
+        year={selectedMonth.year}
+        onBack={() => setSelectedMonth(null)}
+      />
     )
   }
 
-  if (months.length === 0) {
-    return (
-      <div className="card">
-        <p>No hay historial mensual todavía.</p>
-      </div>
-    )
+  if (loading) {
+    return <div className="page-loading"><div className="spinner" /></div>
   }
 
   return (
@@ -94,8 +95,12 @@ export default function MonthlyHistory() {
 
       <div className="monthly-grid">
         {months.map((m, index) => (
-          <div key={index} className="card monthly-card">
-
+          <div
+            key={index}
+            className="card monthly-card"
+            onClick={() => setSelectedMonth(m)}
+            style={{ cursor: 'pointer' }}
+          >
             <h3>{getMonthName(m.month)} {m.year}</h3>
 
             <p>Ingresos: <strong>{formatCOP(m.ingresos)}</strong></p>
