@@ -33,6 +33,8 @@ export default function Navbar(props) {
   return (
     <header className="topbar">
       <div className="topbar-inner">
+
+        {/* 🔹 IZQUIERDA */}
         <div className="brand-block">
           <div className="brand-logo">💸</div>
           <div className="brand-copy">
@@ -41,6 +43,7 @@ export default function Navbar(props) {
           </div>
         </div>
 
+        {/* 🔹 CENTRO */}
         <nav className="top-nav">
           {items.map((item) => (
             <button
@@ -54,6 +57,7 @@ export default function Navbar(props) {
           ))}
         </nav>
 
+        {/* 🔹 DERECHA */}
         <div className="topbar-user">
           <div className="user-chip">
             <span className="user-avatar">👤</span>
