@@ -3935,3 +3935,43 @@ input[type='number'] {
     font-size: 12px;
   }
 }
+/* =========================
+   📱 FIX SCROLL GLOBAL MOBILE
+========================= */
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+}
+
+/* 🔥 CONTENEDOR PRINCIPAL */
+.page-container {
+  min-height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 140px; /* espacio para teclado */
+}
+
+/* 🔥 SCROLL SUAVE */
+html {
+  scroll-behavior: smooth;
+}
+/* =========================
+   📋 FORMULARIOS MOBILE FIX
+========================= */
+
+.form-card {
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+/* 🔥 INPUTS NO SE TAPAN */
+input,
+select,
+textarea {
+  scroll-margin-bottom: 140px;
+}
