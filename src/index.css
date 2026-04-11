@@ -4195,3 +4195,12 @@ textarea {
   cursor: pointer;
   font-size: 18px;
 }
+.input-password {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-password span {
+  cursor: pointer;
+}

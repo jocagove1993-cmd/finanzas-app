@@ -13,7 +13,7 @@ import AddExpense from './pages/AddExpense'
 import History from './pages/History'
 import Settings from './pages/Settings'
 import SavingsGoals from './pages/SavingsGoals'
-import MonthlyHistory from './pages/MonthlyHistory' // 🔥 NUEVO
+import MonthlyHistory from './pages/MonthlyHistory'
 
 export default function App() {
   const { user, nombre, loading } = useAuth()
@@ -21,8 +21,11 @@ export default function App() {
   const [authView, setAuthView] = useState('login')
   const [activeView, setActiveView] = useState('dashboard')
 
-  // 🔥 DETECTAR RECOVERY (ANTES DE TODO)
-  const isRecovery = window.location.hash.includes('type=recovery')
+  // 🔥 DETECCIÓN ROBUSTA DE RECOVERY
+  const hash = window.location.hash || ''
+  const isRecovery =
+    hash.includes('type=recovery') ||
+    (hash.includes('access_token') && hash.includes('refresh_token'))
 
   if (loading) {
     return (
@@ -70,7 +73,7 @@ export default function App() {
         return <History />
       case 'goals':
         return <SavingsGoals />
-      case 'monthly': // 🔥 NUEVO CASO
+      case 'monthly':
         return <MonthlyHistory />
       case 'settings':
         return <Settings />

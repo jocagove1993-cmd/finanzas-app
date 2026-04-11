@@ -3,66 +3,77 @@ import { supabase } from '../lib/supabaseClient'
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [errorMsg, setErrorMsg] = useState('')
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setErrorMsg('')
-    setMessage('')
+    setError('')
+    setSuccess('')
+
+    if (!password || password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres.')
+      return
+    }
+
+    if (password !== confirm) {
+      setError('Las contraseñas no coinciden.')
+      return
+    }
+
     setLoading(true)
 
-    const cleanPassword = password.trim()
+    const { error } = await supabase.auth.updateUser({
+      password,
+    })
 
-    if (cleanPassword.length < 6) {
-      setErrorMsg('La contraseña debe tener al menos 6 caracteres.')
+    if (error) {
+      setError('No se pudo actualizar la contraseña.')
       setLoading(false)
       return
     }
 
-    const { error } = await supabase.auth.updateUser({
-      password: cleanPassword,
-    })
-
-    if (error) {
-      setErrorMsg('No se pudo actualizar la contraseña.')
-    } else {
-      setMessage('Contraseña actualizada correctamente. Ya puedes iniciar sesión.')
-    }
-
+    setSuccess('Contraseña actualizada correctamente. Ya puedes iniciar sesión.')
     setLoading(false)
   }
 
   return (
     <div className="auth-wrapper">
       <div className="auth-card">
-        <div className="auth-logo">🔑</div>
-
-        <span className="auth-kicker">Seguridad</span>
-        <h1 className="auth-title">Nueva contraseña</h1>
-        <p className="auth-subtitle">
-          Ingresa tu nueva contraseña para acceder nuevamente a tu cuenta.
-        </p>
+        <h1>Restablecer contraseña 🔐</h1>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="field">
-            <label>Nueva contraseña</label>
+
+          <div className="input-password">
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               placeholder="Nueva contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
+            <span onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? '🙈' : '👁️'}
+            </span>
           </div>
 
-          {errorMsg && <p className="field-error">{errorMsg}</p>}
-          {message && <p className="field-success">{message}</p>}
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Confirmar contraseña"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
 
-          <button type="submit" className="btn-primary auth-btn" disabled={loading}>
+          {error && <p className="field-error">{error}</p>}
+          {success && <p className="field-success">{success}</p>}
+
+          <button type="submit" disabled={loading}>
             {loading ? 'Guardando...' : 'Actualizar contraseña'}
           </button>
+
         </form>
       </div>
     </div>
