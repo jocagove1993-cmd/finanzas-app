@@ -4185,3 +4185,13 @@ textarea {
     font-size: 14px;
   }
 }
+.input-password {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-password {
+  cursor: pointer;
+  font-size: 18px;
+}

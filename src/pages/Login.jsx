@@ -7,6 +7,8 @@ export default function Login({ onSwitchToRegister, onSwitchToForgot }) {
     password: '',
   })
 
+  const [showPassword, setShowPassword] = useState(false)
+
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -88,14 +90,25 @@ export default function Login({ onSwitchToRegister, onSwitchToForgot }) {
 
           <div className="field">
             <label>Contraseña</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Tu contraseña"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
+
+            {/* 🔥 INPUT CON OJITO */}
+            <div className="input-password">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                placeholder="Tu contraseña"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+
+              <span
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </span>
+            </div>
           </div>
 
           {errorMsg && <p className="field-error">{errorMsg}</p>}
@@ -105,7 +118,6 @@ export default function Login({ onSwitchToRegister, onSwitchToForgot }) {
           </button>
         </form>
 
-        {/* 🔥 AQUÍ ESTÁ EL CAMBIO CORRECTO */}
         <p
           style={{
             marginTop: '12px',
