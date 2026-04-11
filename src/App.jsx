@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from './hooks/useAuth'
 
 import Navbar from './components/Navbar'
@@ -21,11 +21,23 @@ export default function App() {
   const [authView, setAuthView] = useState('login')
   const [activeView, setActiveView] = useState('dashboard')
 
-  // 🔥 DETECTAR RECOVERY
-  const hash = window.location.hash || ''
-  const isRecovery =
-    hash.includes('type=recovery') ||
-    (hash.includes('access_token') && hash.includes('refresh_token'))
+  const [forceRecovery, setForceRecovery] = useState(false)
+
+  // 🔥 DETECTAR RECOVERY Y GUARDARLO
+  useEffect(() => {
+    const hash = window.location.hash || ''
+
+    const isRecovery =
+      hash.includes('type=recovery') ||
+      (hash.includes('access_token') && hash.includes('refresh_token'))
+
+    if (isRecovery) {
+      setForceRecovery(true)
+
+      // 🔥 LIMPIA URL (evita que se pierda)
+      window.history.replaceState({}, document.title, '/')
+    }
+  }, [])
 
   if (loading) {
     return (
@@ -35,12 +47,12 @@ export default function App() {
     )
   }
 
-  // 🔥 PRIORIDAD TOTAL (ANTES DE TODO)
-  if (isRecovery) {
+  // 🔥 PRIORIDAD TOTAL
+  if (forceRecovery) {
     return <ResetPassword />
   }
 
-  // 🔥 IMPORTANTE: SOLO BLOQUEA AUTH SI NO ES RECOVERY
+  // 🔐 AUTH
   if (!user) {
     if (authView === 'login') {
       return (
@@ -60,7 +72,7 @@ export default function App() {
     }
   }
 
-  // 🔥 APP NORMAL
+  // 🧭 APP
   const renderView = () => {
     switch (activeView) {
       case 'dashboard':
