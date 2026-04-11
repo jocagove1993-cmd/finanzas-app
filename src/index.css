@@ -4204,3 +4204,14 @@ textarea {
 .input-password span {
   cursor: pointer;
 }
+.field input[type="checkbox"] {
+  width: auto;
+}
+.field select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: #0b1220;
+  color: #fff;
+  border: 1px solid #1f2937;
+}

@@ -29,7 +29,11 @@ export function usePayments(userId) {
   }
 
   const pay = async (payload) => {
-    const res = await markPaymentAsPaid(payload)
+    const res = await markPaymentAsPaid({
+      ...payload,
+      userId,
+    })
+
     if (res.success) await loadPayments()
     return res
   }

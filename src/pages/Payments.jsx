@@ -11,12 +11,21 @@ export default function Payments() {
     name: '',
     amount: '',
     due_date: '',
+    type: 'unique',
   })
 
   const [source, setSource] = useState('gastos')
 
+  const [loadingPayId, setLoadingPayId] = useState(null)
+  const [errorMsg, setErrorMsg] = useState('')
+
+  const numericAmount = Number(form.amount || 0)
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    })
   }
 
   const handleSubmit = async (e) => {
@@ -27,25 +36,101 @@ export default function Payments() {
       name: form.name,
       amount: Number(form.amount),
       due_date: form.due_date,
+      is_recurring: form.type === 'recurring',
     })
 
-    setForm({ name: '', amount: '', due_date: '' })
+    setForm({
+      name: '',
+      amount: '',
+      due_date: '',
+      type: 'unique',
+    })
+  }
+
+  const handlePay = async (paymentId) => {
+    setErrorMsg('')
+    setLoadingPayId(paymentId)
+
+    const res = await pay({
+      id: paymentId,
+      source,
+    })
+
+    if (!res.success) {
+      setErrorMsg(res.error?.message || 'No se pudo realizar el pago')
+    }
+
+    setLoadingPayId(null)
   }
 
   return (
     <div className="page">
       <h1>Agenda de pagos 📅</h1>
 
-      {/* FORMULARIO */}
       <form onSubmit={handleSubmit} className="form-card">
-        <input name="name" placeholder="Ej: Factura Claro" value={form.name} onChange={handleChange} />
-        <input name="amount" type="number" placeholder="Monto" value={form.amount} onChange={handleChange} />
-        <input name="due_date" type="date" value={form.due_date} onChange={handleChange} />
 
-        <button type="submit" className="btn-primary">Guardar pago</button>
+        <div className="field">
+          <label>Entidad / Pago</label>
+          <input
+            name="name"
+            placeholder="Ej: Factura Claro"
+            value={form.name}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="field">
+          <label>Monto</label>
+          <input
+            name="amount"
+            type="number"
+            inputMode="numeric"
+            placeholder="Monto"
+            value={form.amount}
+            onChange={handleChange}
+          />
+
+          {form.amount && (
+            <small className="helper-text">
+              {formatCOP(numericAmount)}
+            </small>
+          )}
+        </div>
+
+        <div className="field">
+          <label>Fecha de pago</label>
+          <input
+            name="due_date"
+            type="date"
+            value={form.due_date}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div className="field">
+          <label>Tipo de pago</label>
+          <select
+            name="type"
+            value={form.type}
+            onChange={handleChange}
+          >
+            <option value="unique">Pago único</option>
+            <option value="recurring">Recurrente mensual</option>
+          </select>
+        </div>
+
+        <button type="submit" className="btn-primary">
+          Guardar pago
+        </button>
       </form>
 
-      {/* LISTA */}
+      {/* 🔥 ERROR GLOBAL */}
+      {errorMsg && (
+        <p className="field-error" style={{ marginTop: '10px' }}>
+          {errorMsg}
+        </p>
+      )}
+
       <div className="goals-premium-grid">
         {payments.map((p) => (
           <div key={p.id} className="card">
@@ -54,18 +139,26 @@ export default function Payments() {
             <p>{formatCOP(p.amount)}</p>
             <p>Fecha: {p.due_date}</p>
 
+            {p.is_recurring && (
+              <p style={{ color: '#60a5fa' }}>🔁 Recurrente</p>
+            )}
+
             {p.status === 'pending' ? (
               <>
-                <select onChange={(e) => setSource(e.target.value)}>
+                <select
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                >
                   <option value="gastos">Disponible</option>
                   <option value="imprevistos">Imprevistos</option>
                 </select>
 
                 <button
                   className="btn-primary"
-                  onClick={() => pay({ id: p.id, source })}
+                  onClick={() => handlePay(p.id)}
+                  disabled={loadingPayId === p.id}
                 >
-                  Marcar como pagado
+                  {loadingPayId === p.id ? 'Procesando...' : 'Marcar como pagado'}
                 </button>
               </>
             ) : (
