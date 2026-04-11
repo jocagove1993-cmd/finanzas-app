@@ -27,8 +27,12 @@ export default function Navbar(props) {
     { key: 'expense', label: 'Gasto' },
     { key: 'history', label: 'Historial' },
     { key: 'goals', label: 'Metas' },
-    { key: 'monthly', label: 'Mensual 📊' }, // 🔥 FIX VISUAL
-    { key: 'settings', label: 'Config' }, // 🔥 más corto en móvil
+
+    // 🔥 NUEVO (bien ubicado)
+    { key: 'payments', label: 'Pagos 💸' },
+
+    { key: 'monthly', label: 'Mensual 📊' },
+    { key: 'settings', label: 'Config' },
   ]
 
   return (

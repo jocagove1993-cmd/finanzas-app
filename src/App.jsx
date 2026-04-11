@@ -14,6 +14,7 @@ import History from './pages/History'
 import Settings from './pages/Settings'
 import SavingsGoals from './pages/SavingsGoals'
 import MonthlyHistory from './pages/MonthlyHistory'
+import Payments from './pages/Payments' // 🔥 NUEVO
 
 export default function App() {
   const { user, nombre, loading } = useAuth()
@@ -85,6 +86,8 @@ export default function App() {
         return <History />
       case 'goals':
         return <SavingsGoals />
+      case 'payments': // 🔥 NUEVO
+        return <Payments />
       case 'monthly':
         return <MonthlyHistory />
       case 'settings':
