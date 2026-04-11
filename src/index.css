@@ -4126,3 +4126,62 @@ textarea {
   color: #ef4444;
   font-weight: bold;
 }
+/* =========================
+   ⚙️ SETTINGS UI
+========================= */
+
+.form-card {
+  padding: 20px;
+  border-radius: 16px;
+  background: #0f172a;
+}
+
+/* 🔥 CAMPOS */
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.field label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+.field input {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #1f2937;
+  background: #020617;
+  color: #fff;
+}
+
+/* 🔥 BOTONES */
+.btn-primary {
+  margin-top: 10px;
+}
+
+/* 🔥 MENSAJES */
+.field-error {
+  color: #ef4444;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.field-success {
+  color: #22c55e;
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+/* 🔥 MOBILE */
+@media (max-width: 768px) {
+  .form-card {
+    padding: 16px;
+  }
+
+  .field input {
+    font-size: 14px;
+  }
+}
