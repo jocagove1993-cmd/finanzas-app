@@ -21,7 +21,7 @@ export default function App() {
   const [authView, setAuthView] = useState('login')
   const [activeView, setActiveView] = useState('dashboard')
 
-  // 🔥 DETECCIÓN ROBUSTA DE RECOVERY
+  // 🔥 DETECTAR RECOVERY
   const hash = window.location.hash || ''
   const isRecovery =
     hash.includes('type=recovery') ||
@@ -35,12 +35,12 @@ export default function App() {
     )
   }
 
-  // 🔥 PRIORIDAD ABSOLUTA
+  // 🔥 PRIORIDAD TOTAL (ANTES DE TODO)
   if (isRecovery) {
     return <ResetPassword />
   }
 
-  // 🔐 AUTH
+  // 🔥 IMPORTANTE: SOLO BLOQUEA AUTH SI NO ES RECOVERY
   if (!user) {
     if (authView === 'login') {
       return (
@@ -60,7 +60,7 @@ export default function App() {
     }
   }
 
-  // 🧭 APP
+  // 🔥 APP NORMAL
   const renderView = () => {
     switch (activeView) {
       case 'dashboard':
