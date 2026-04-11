@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
 export default function ResetPassword() {
@@ -9,6 +9,29 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  // 🔥 CLAVE: activar sesión desde URL
+  useEffect(() => {
+    const setSessionFromUrl = async () => {
+      const { data, error } = await supabase.auth.getSession()
+
+      if (error) {
+        console.error('Error obteniendo sesión:', error)
+      }
+
+      // ⚠️ esto fuerza a supabase a reconocer el recovery
+      if (!data.session) {
+        const { error: sessionError } =
+          await supabase.auth.exchangeCodeForSession(window.location.href)
+
+        if (sessionError) {
+          console.error('Error activando sesión:', sessionError)
+        }
+      }
+    }
+
+    setSessionFromUrl()
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,6 +55,7 @@ export default function ResetPassword() {
     })
 
     if (error) {
+      console.error(error)
       setError('No se pudo actualizar la contraseña.')
       setLoading(false)
       return
