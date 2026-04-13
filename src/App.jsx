@@ -94,7 +94,7 @@ export default function App() {
       case 'history':
         return <History />
       case 'goals':
-        return <SavingsGoals selectedGoalId={selectedGoalId} />
+        return <SavingsGoals selectedGoalId={selectedGoalId} onModalClose={() => setSelectedGoalId(null)} />
       case 'payments': // 🔥 NUEVO
         return <Payments selectedPaymentId={selectedPaymentId} />
       case 'monthly':

@@ -36,7 +36,17 @@ export async function resetUserFinancialData(userId) {
       return { error: txError }
     }
 
-    // 4️⃣ Resetear balances
+    // 4️⃣ Borrar pagos agendados
+    const { error: paymentsError } = await supabase
+      .from('payment_schedule')
+      .delete()
+      .eq('user_id', userId)
+
+    if (paymentsError) {
+      return { error: paymentsError }
+    }
+
+    // 5️⃣ Resetear balances
     const { error: balanceError } = await supabase
       .from('balances')
       .update({

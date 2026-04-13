@@ -40,7 +40,7 @@ function calculateGoalPlan(goal) {
   }
 }
 
-export default function SavingsGoals({ selectedGoalId }) {
+export default function SavingsGoals({ selectedGoalId, onModalClose }) {
   const { user } = useAuth()
   const {
     goals,
@@ -194,6 +194,7 @@ export default function SavingsGoals({ selectedGoalId }) {
     setTimeout(() => {
       resetContributionForm()
       setSelectedGoal(null)
+      if (onModalClose) onModalClose()
     }, 700)
   }
 
@@ -422,6 +423,7 @@ export default function SavingsGoals({ selectedGoalId }) {
                 onClick={() => {
                   resetContributionForm()
                   setSelectedGoal(null)
+                  if (onModalClose) onModalClose()
                 }}
               >
                 ✕
