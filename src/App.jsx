@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+    import { useState, useEffect } from 'react'
 import { useAuth } from './hooks/useAuth'
 
 import Navbar from './components/Navbar'
@@ -23,6 +23,9 @@ export default function App() {
   const [activeView, setActiveView] = useState('dashboard')
 
   const [forceRecovery, setForceRecovery] = useState(false)
+
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null)
+  const [selectedGoalId, setSelectedGoalId] = useState(null)
 
   // 🔥 DETECTAR RECOVERY Y GUARDARLO
   useEffect(() => {
@@ -77,7 +80,13 @@ export default function App() {
   const renderView = () => {
     switch (activeView) {
       case 'dashboard':
-        return <Dashboard />
+        return (
+          <Dashboard
+            setActiveView={setActiveView}
+            setSelectedPaymentId={setSelectedPaymentId}
+            setSelectedGoalId={setSelectedGoalId}
+          />
+        )
       case 'income':
         return <AddIncome />
       case 'expense':
@@ -85,15 +94,21 @@ export default function App() {
       case 'history':
         return <History />
       case 'goals':
-        return <SavingsGoals />
+        return <SavingsGoals selectedGoalId={selectedGoalId} />
       case 'payments': // 🔥 NUEVO
-        return <Payments />
+        return <Payments selectedPaymentId={selectedPaymentId} />
       case 'monthly':
         return <MonthlyHistory />
       case 'settings':
         return <Settings />
       default:
-        return <Dashboard />
+        return (
+          <Dashboard
+            setActiveView={setActiveView}
+            setSelectedPaymentId={setSelectedPaymentId}
+            setSelectedGoalId={setSelectedGoalId}
+          />
+        )
     }
   }
 
@@ -108,3 +123,5 @@ export default function App() {
     </>
   )
 }
+
+    

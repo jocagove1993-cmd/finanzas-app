@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+    import { useMemo } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useFinances } from '../hooks/useFinances'
 import { useSavingsGoals } from '../hooks/useSavingsGoals'
+import { usePayments } from '../hooks/usePayments'
 import { formatCOP } from '../utils/formatCurrency'
 
 function calculateGoalPlan(goal) {
@@ -74,10 +75,23 @@ function safeTimestamp(dateValue) {
   return parsed
 }
 
-export default function Dashboard() {
+export default function Dashboard({ setActiveView, setSelectedPaymentId, setSelectedGoalId }) {
   const { user, nombre } = useAuth()
   const { balance, monthly, loading } = useFinances(user?.id)
   const { goals = [], contributions = [] } = useSavingsGoals(user?.id)
+
+  const { payments = [] } = usePayments(user?.id)
+  const today = new Date()
+  const upcomingPayments = payments
+    .filter(p => p.status === 'pending')
+    .map(p => ({
+      ...p,
+      date: new Date(p.due_date),
+    }))
+    .sort((a, b) => a.date - b.date)
+
+  const nextPayments = upcomingPayments.slice(0, 3)
+  const overduePayments = upcomingPayments.filter(p => p.date < today)
 
   const transactions = useMemo(() => {
     return Array.isArray(monthly?.transactions) ? monthly.transactions : []
@@ -427,6 +441,56 @@ export default function Dashboard() {
 
       <section className="db-section">
         <div className="db-section-header">
+          <h3>Próximos pagos</h3>
+        </div>
+
+        {nextPayments.length === 0 ? (
+          <div className="card db-empty-state">
+            <p>No tienes pagos pendientes.</p>
+          </div>
+        ) : (
+          <div>
+            {overduePayments.length > 0 && (
+              <div className="db-payments-alert">
+                ⚠️ Tienes pagos vencidos
+              </div>
+            )}
+
+            {nextPayments.map((p) => {
+              const isOverdue = new Date(p.due_date) < today
+
+              return (
+                <div key={p.id} className="card db-payment-item">
+                  <div>
+                    <p>{p.name}</p>
+                    <span>
+                      {new Date(p.due_date).toLocaleDateString('es-CO')}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span>{formatCOP(p.amount)}</span>
+                    <span>{isOverdue ? 'Vencido' : 'Próximo'}</span>
+                  </div>
+
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      setSelectedPaymentId(p.id)
+                      setActiveView('payments')
+                    }}
+                  >
+                    Pagar ahora
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="db-section">
+        <div className="db-section-header">
           <h3>Metas inteligentes</h3>
         </div>
 
@@ -502,6 +566,16 @@ export default function Dashboard() {
                       </span>
                     </div>
                   </div>
+
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      setSelectedGoalId(goal.id)
+                      setActiveView('goals')
+                    }}
+                  >
+                    Abonar
+                  </button>
                 </div>
               )
             })}
@@ -550,3 +624,5 @@ export default function Dashboard() {
     </div>
   )
 }
+
+    

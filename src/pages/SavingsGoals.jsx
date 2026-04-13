@@ -1,4 +1,4 @@
-import { useState } from 'react'
+    import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useSavingsGoals } from '../hooks/useSavingsGoals'
 import { formatCOP } from '../utils/formatCurrency'
@@ -40,7 +40,7 @@ function calculateGoalPlan(goal) {
   }
 }
 
-export default function SavingsGoals() {
+export default function SavingsGoals({ selectedGoalId }) {
   const { user } = useAuth()
   const {
     goals,
@@ -73,6 +73,16 @@ export default function SavingsGoals() {
   const numericTarget = Number(form.target_amount || 0)
   const numericCurrent = Number(form.current_amount || 0)
   const numericContribution = Number(contributionAmount || 0)
+
+  useEffect(() => {
+    if (selectedGoalId && goals.length > 0) {
+      const match = goals.find((g) => g.id === selectedGoalId)
+      if (match) {
+        resetContributionForm()
+        setSelectedGoal(match)
+      }
+    }
+  }, [selectedGoalId, goals])
 
   const previewPlan = calculateGoalPlan({
     target_amount: numericTarget,
@@ -572,3 +582,5 @@ export default function SavingsGoals() {
     </div>
   )
 }
+
+    

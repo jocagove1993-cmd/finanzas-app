@@ -23,6 +23,16 @@ export async function getPayments(userId) {
   return { success: true, data: data || [] }
 }
 
+export async function deletePayment(id) {
+  const { error } = await supabase
+    .from('payment_schedule')
+    .delete()
+    .eq('id', id)
+
+  if (error) return { success: false, error }
+  return { success: true }
+}
+
 // 🔥 AQUÍ ESTÁ LA MAGIA REAL
 export async function markPaymentAsPaid({ id, source, userId }) {
   try {

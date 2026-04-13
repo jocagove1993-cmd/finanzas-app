@@ -1,11 +1,11 @@
-import { useState } from 'react'
+    import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { usePayments } from '../hooks/usePayments'
 import { formatCOP } from '../utils/formatCurrency'
 
-export default function Payments() {
+export default function Payments({ selectedPaymentId }) {
   const { user } = useAuth()
-  const { payments, addPayment, pay } = usePayments(user?.id)
+  const { payments, addPayment, pay, removePayment } = usePayments(user?.id)
 
   const [form, setForm] = useState({
     name: '',
@@ -17,7 +17,16 @@ export default function Payments() {
   const [source, setSource] = useState('gastos')
 
   const [loadingPayId, setLoadingPayId] = useState(null)
+  const [loadingDeleteId, setLoadingDeleteId] = useState(null)
   const [errorMsg, setErrorMsg] = useState('')
+
+  const selectedPaymentRef = useRef(null)
+
+  useEffect(() => {
+    if (selectedPaymentId && selectedPaymentRef.current) {
+      selectedPaymentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [selectedPaymentId])
 
   const numericAmount = Number(form.amount || 0)
 
@@ -61,6 +70,19 @@ export default function Payments() {
     }
 
     setLoadingPayId(null)
+  }
+
+  const handleDelete = async (paymentId) => {
+    setErrorMsg('')
+    setLoadingDeleteId(paymentId)
+
+    const res = await removePayment(paymentId)
+
+    if (!res.success) {
+      setErrorMsg(res.error?.message || 'No se pudo eliminar el pago')
+    }
+
+    setLoadingDeleteId(null)
   }
 
   return (
@@ -133,7 +155,11 @@ export default function Payments() {
 
       <div className="goals-premium-grid">
         {payments.map((p) => (
-          <div key={p.id} className="card">
+          <div
+            key={p.id}
+            ref={selectedPaymentId === p.id ? selectedPaymentRef : null}
+            className={`card${selectedPaymentId === p.id ? ' card--highlighted' : ''}`}
+          >
 
             <h3>{p.name}</h3>
             <p>{formatCOP(p.amount)}</p>
@@ -164,9 +190,20 @@ export default function Payments() {
             ) : (
               <p style={{ color: '#22c55e' }}>Pagado</p>
             )}
+
+            <button
+              className="btn-danger"
+              onClick={() => handleDelete(p.id)}
+              disabled={loadingDeleteId === p.id}
+            >
+              {loadingDeleteId === p.id ? 'Eliminando...' : 'Eliminar'}
+            </button>
+
           </div>
         ))}
       </div>
     </div>
   )
 }
+
+    

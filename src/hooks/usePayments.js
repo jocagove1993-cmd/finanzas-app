@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getPayments, createPayment, markPaymentAsPaid } from '../services/paymentService'
+import { getPayments, createPayment, markPaymentAsPaid, deletePayment } from '../services/paymentService'
 
 export function usePayments(userId) {
   const [payments, setPayments] = useState([])
@@ -38,10 +38,17 @@ export function usePayments(userId) {
     return res
   }
 
+  const removePayment = async (id) => {
+    const res = await deletePayment(id)
+    if (res.success) await loadPayments()
+    return res
+  }
+
   return {
     payments,
     loading,
     addPayment,
     pay,
+    removePayment,
   }
 }
