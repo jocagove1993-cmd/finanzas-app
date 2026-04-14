@@ -189,7 +189,24 @@ export default function Dashboard({ setActiveView, setSelectedPaymentId, setSele
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 6)
   }, [transactions, contributions])
+// ===== INSIGHTS INTELIGENTES =====
+const smartInsights = []
 
+if (gastosMes > ingresosMes && ingresosMes > 0) {
+  smartInsights.push('Tus gastos están superando tus ingresos. Ajusta tu presupuesto.')
+}
+
+if (pctHormiga >= 15) {
+  smartInsights.push('Tus gastos hormiga están altos. Revisa pequeños gastos diarios.')
+}
+
+if (overduePayments.length > 0) {
+  smartInsights.push('Tienes pagos vencidos. Priorízalos para evitar intereses.')
+}
+
+if (smartInsights.length === 0) {
+  smartInsights.push('Vas bien. Tu flujo financiero está equilibrado.')
+}
   if (loading) {
     return (
       <div className="db-loading">
@@ -344,11 +361,15 @@ export default function Dashboard({ setActiveView, setSelectedPaymentId, setSele
 
             <div className="db-flow-summary-copy">
               <p>
-                {abonosMes > gastosMes
+                {ingresosMes === 0 && gastosMes === 0 && abonosMes === 0
+                  ? 'Aún no hay movimientos registrados este mes.'
+                  : abonosMes > gastosMes
                   ? 'Este mes destinaste más dinero a metas que a gastos.'
                   : abonosMes > 0
                   ? 'Tus abonos también están impactando tu flujo mensual.'
-                  : 'Tu flujo del mes está concentrado principalmente en gasto.'}
+                  : gastosMes > 0
+                  ? 'Tu flujo del mes está concentrado principalmente en gasto.'
+                  : 'Aún no hay gastos registrados este mes.'}
               </p>
             </div>
           </div>
@@ -582,7 +603,93 @@ export default function Dashboard({ setActiveView, setSelectedPaymentId, setSele
           </div>
         )}
       </section>
+{/* ===== CONSEJOS FINANCIEROS ===== */}
+<section className="db-section">
+  <div className="db-section-header">
+    <h3>Consejos financieros</h3>
+  </div>
 
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    
+    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div>💳</div>
+      <div>
+        <strong>Avalancha de deudas</strong>
+        <p style={{ opacity: 0.7 }}>
+          Paga mínimos en todas y concentra el excedente en la de mayor tasa de interés.
+        </p>
+      </div>
+    </div>
+
+    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div>📁</div>
+      <div>
+        <strong>Los proyectos se financian antes</strong>
+        <p style={{ opacity: 0.7 }}>
+          Define cuánto necesitas y ahorra quincena a quincena antes de gastar.
+        </p>
+      </div>
+    </div>
+
+    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div>🌱</div>
+      <div>
+        <strong>El tiempo vale más que el monto</strong>
+        <p style={{ opacity: 0.7 }}>
+          Empieza a invertir aunque sea poco. El tiempo es el mayor multiplicador.
+        </p>
+      </div>
+    </div>
+
+    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div>🔒</div>
+      <div>
+        <strong>Fondo de emergencia — primero</strong>
+        <p style={{ opacity: 0.7 }}>
+          Asegura 3 a 6 meses de tus gastos fijos antes de invertir.
+        </p>
+      </div>
+    </div>
+
+    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div>📊</div>
+      <div>
+        <strong>Revisa tus estadísticas mensualmente</strong>
+        <p style={{ opacity: 0.7 }}>
+          Identifica dónde crece tu gasto y corrige antes de que escale.
+        </p>
+      </div>
+    </div>
+
+    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <div>⚠️</div>
+      <div>
+        <strong>30% máximo en cuotas</strong>
+        <p style={{ opacity: 0.7 }}>
+          Si superas el 30% de tus ingresos en deudas, estás en zona de riesgo.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+{/* ===== PARA TI ===== */}
+<section className="db-section">
+  <div className="db-section-header">
+    <h3>💡 Para ti</h3>
+  </div>
+
+  <div className="card" style={{
+    border: '1px solid rgba(34,197,94,0.3)',
+    padding: '14px'
+  }}>
+    {smartInsights.map((msg, i) => (
+      <p key={i} style={{ marginBottom: '6px', opacity: 0.85 }}>
+        {msg}
+      </p>
+    ))}
+  </div>
+</section>
       <section className="db-section">
         <div className="db-section-header">
           <h3>Últimos movimientos</h3>
