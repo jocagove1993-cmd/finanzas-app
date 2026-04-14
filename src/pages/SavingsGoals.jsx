@@ -1,4 +1,4 @@
-    import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useSavingsGoals } from '../hooks/useSavingsGoals'
 import { formatCOP } from '../utils/formatCurrency'
@@ -21,14 +21,11 @@ function calculateGoalPlan(goal) {
 
   const today = new Date()
   const deadline = new Date(goal.deadline)
-
   const diffMs = deadline - today
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
   const fortnightsLeft = Math.max(Math.ceil(diffDays / 15), 0)
-
   const recommendedPerFortnight =
     fortnightsLeft > 0 ? Math.ceil(remaining / fortnightsLeft) : remaining
-
   const progress =
     target > 0 ? Math.min(Math.round((current / target) * 100), 100) : 0
 
@@ -40,15 +37,46 @@ function calculateGoalPlan(goal) {
   }
 }
 
+function calculateDynamicPeriods(deadline, remaining, frequency) {
+  if (!deadline || !frequency) {
+    return {
+      periodsLeft: 0,
+      amountPerPeriod: 0,
+      periodLabel: 'Quincenas',
+      periodSingular: 'quincena',
+    }
+  }
+
+  const today = new Date()
+  const deadlineDate = new Date(deadline)
+  const diffMs = deadlineDate - today
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+
+  let divisor = 15
+  let periodLabel = 'Quincenas'
+  let periodSingular = 'quincena'
+
+  if (frequency === 'semanal') {
+    divisor = 7
+    periodLabel = 'Semanas'
+    periodSingular = 'semana'
+  } else if (frequency === 'mensual') {
+    divisor = 30
+    periodLabel = 'Meses'
+    periodSingular = 'mes'
+  }
+
+  const periodsLeft = Math.max(Math.ceil(diffDays / divisor), 0)
+  const amountPerPeriod =
+    periodsLeft > 0 ? Math.ceil(remaining / periodsLeft) : remaining
+
+  return { periodsLeft, amountPerPeriod, periodLabel, periodSingular }
+}
+
 export default function SavingsGoals({ selectedGoalId, onModalClose }) {
   const { user } = useAuth()
-  const {
-    goals,
-    loading,
-    addGoal,
-    addContribution,
-    deleteGoal,
-  } = useSavingsGoals(user?.id)
+  const { goals, loading, addGoal, addContribution, deleteGoal } =
+    useSavingsGoals(user?.id)
 
   const [showForm, setShowForm] = useState(false)
   const [selectedGoal, setSelectedGoal] = useState(null)
@@ -59,11 +87,11 @@ export default function SavingsGoals({ selectedGoalId, onModalClose }) {
     current_amount: '',
     deadline: '',
     icon: '💰',
+    frequency: 'quincenal',
   })
 
   const [contributionAmount, setContributionAmount] = useState('')
   const [contributionSource, setContributionSource] = useState('gastos')
-
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [contributionError, setContributionError] = useState('')
@@ -73,6 +101,18 @@ export default function SavingsGoals({ selectedGoalId, onModalClose }) {
   const numericTarget = Number(form.target_amount || 0)
   const numericCurrent = Number(form.current_amount || 0)
   const numericContribution = Number(contributionAmount || 0)
+
+  const previewPlan = calculateGoalPlan({
+    target_amount: numericTarget,
+    current_amount: numericCurrent,
+    deadline: form.deadline,
+  })
+
+  const dynamicPeriods = calculateDynamicPeriods(
+    form.deadline,
+    previewPlan.remaining,
+    form.frequency
+  )
 
   useEffect(() => {
     if (selectedGoalId && goals.length > 0) {
@@ -84,17 +124,8 @@ export default function SavingsGoals({ selectedGoalId, onModalClose }) {
     }
   }, [selectedGoalId, goals])
 
-  const previewPlan = calculateGoalPlan({
-    target_amount: numericTarget,
-    current_amount: numericCurrent,
-    deadline: form.deadline,
-  })
-
   const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }))
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const resetGoalForm = () => {
@@ -104,6 +135,7 @@ export default function SavingsGoals({ selectedGoalId, onModalClose }) {
       current_amount: '',
       deadline: '',
       icon: '💰',
+      frequency: 'quincenal',
     })
     setError('')
     setSuccess('')
@@ -331,6 +363,15 @@ export default function SavingsGoals({ selectedGoalId, onModalClose }) {
                 </div>
 
                 <div className="field">
+                  <label>Frecuencia de ahorro</label>
+                  <select name="frequency" value={form.frequency} onChange={handleChange}>
+                    <option value="semanal">Semanal</option>
+                    <option value="quincenal">Quincenal</option>
+                    <option value="mensual">Mensual</option>
+                  </select>
+                </div>
+
+                <div className="field">
                   <label>Ícono</label>
                   <select name="icon" value={form.icon} onChange={handleChange}>
                     {iconOptions.map((icon) => (
@@ -354,7 +395,6 @@ export default function SavingsGoals({ selectedGoalId, onModalClose }) {
 
                 <div className="goal-preview-hero">
                   <div className="goal-preview-icon">{form.icon || '💰'}</div>
-
                   <div>
                     <h3 className="goal-preview-title">
                       {form.name?.trim() || 'Tu nueva meta'}
@@ -385,18 +425,18 @@ export default function SavingsGoals({ selectedGoalId, onModalClose }) {
                   </div>
 
                   <div className="goal-preview-stat">
-                    <span>Quincenas</span>
-                    <strong>{previewPlan.fortnightsLeft}</strong>
+                    <span>{form.frequency === 'semanal' ? 'Semanas' : form.frequency === 'mensual' ? 'Meses' : 'Quincenas'}</span>
+                    <strong>{dynamicPeriods.periodsLeft}</strong>
                   </div>
 
                   <div className="goal-preview-stat">
-                    <span>Por quincena</span>
-                    <strong>{formatCOP(previewPlan.recommendedPerFortnight)}</strong>
+                    <span>Por {form.frequency === 'semanal' ? 'semana' : form.frequency === 'mensual' ? 'mes' : 'quincena'}</span>
+                    <strong>{formatCOP(dynamicPeriods.amountPerPeriod)}</strong>
                   </div>
                 </div>
 
                 <div className="goal-preview-tip">
-                  {previewPlan.fortnightsLeft > 0
+                  {dynamicPeriods.periodsLeft > 0
                     ? 'Tu meta ya tiene una ruta estimada de ahorro.'
                     : 'Agrega una fecha límite para proyectar mejor tu meta.'}
                 </div>
@@ -482,7 +522,9 @@ export default function SavingsGoals({ selectedGoalId, onModalClose }) {
               </div>
 
               {contributionError && <p className="field-error">{contributionError}</p>}
-              {contributionSuccess && <p className="field-success">{contributionSuccess}</p>}
+              {contributionSuccess && (
+                <p className="field-success">{contributionSuccess}</p>
+              )}
 
               <button type="submit" className="btn-primary goals-submit-btn">
                 Confirmar abono
@@ -584,5 +626,3 @@ export default function SavingsGoals({ selectedGoalId, onModalClose }) {
     </div>
   )
 }
-
-    
