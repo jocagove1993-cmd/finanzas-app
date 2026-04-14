@@ -55,6 +55,7 @@ function getMovementIcon(type) {
   if (type === 'income') return '💰'
   if (type === 'expense') return '💸'
   if (type === 'contribution') return '📥'
+  if (type === 'payment_scheduled') return '📅'
   return '•'
 }
 
@@ -62,7 +63,17 @@ function getMovementIconClass(type) {
   if (type === 'income') return 'transaction-icon--income'
   if (type === 'expense') return 'transaction-icon--expense'
   if (type === 'contribution') return 'transaction-icon--contribution'
+  if (type === 'payment_scheduled') return 'transaction-icon--scheduled'
   return 'transaction-icon--goal'
+}
+
+// Etiqueta legible para el tipo de movimiento
+function getMovementLabel(type) {
+  if (type === 'income') return 'Ingreso'
+  if (type === 'expense') return 'Gasto'
+  if (type === 'contribution') return 'Abono'
+  if (type === 'payment_scheduled') return 'Pago programado'
+  return ''
 }
 
 function safeTimestamp(dateValue) {
@@ -121,6 +132,7 @@ export default function Dashboard({ setActiveView, setSelectedPaymentId, setSele
     transactions.forEach((tx) => {
       const amount = Number(tx?.amount || 0)
 
+      // payment_scheduled no afecta el cálculo de balance mensual
       if (tx.type === 'income') ingresos += amount
       if (tx.type === 'expense') gastos += amount
 
@@ -184,29 +196,40 @@ export default function Dashboard({ setActiveView, setSelectedPaymentId, setSele
       created_at: c?.created_at || null,
       timestamp: safeTimestamp(c?.created_at),
     }))
-
-    return [...tx, ...contrib]
+const scheduledPayments = payments
+  .filter(p => p.status === 'pending')
+  .map((p, i) => ({
+    key: `payment-${p.id}-${i}`,
+    type: 'payment_scheduled',
+    description: `Pago agendado: ${p.name}`,
+    amount: Number(p.amount || 0),
+    created_at: p.created_at || null,
+    timestamp: safeTimestamp(p.created_at),
+  }))
+    return [...tx, ...contrib, ...scheduledPayments]
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 6)
-  }, [transactions, contributions])
-// ===== INSIGHTS INTELIGENTES =====
-const smartInsights = []
+  }, [transactions, contributions, payments])
 
-if (gastosMes > ingresosMes && ingresosMes > 0) {
-  smartInsights.push('Tus gastos están superando tus ingresos. Ajusta tu presupuesto.')
-}
+  // ===== INSIGHTS INTELIGENTES =====
+  const smartInsights = []
 
-if (pctHormiga >= 15) {
-  smartInsights.push('Tus gastos hormiga están altos. Revisa pequeños gastos diarios.')
-}
+  if (gastosMes > ingresosMes && ingresosMes > 0) {
+    smartInsights.push('Tus gastos están superando tus ingresos. Ajusta tu presupuesto.')
+  }
 
-if (overduePayments.length > 0) {
-  smartInsights.push('Tienes pagos vencidos. Priorízalos para evitar intereses.')
-}
+  if (pctHormiga >= 15) {
+    smartInsights.push('Tus gastos hormiga están altos. Revisa pequeños gastos diarios.')
+  }
 
-if (smartInsights.length === 0) {
-  smartInsights.push('Vas bien. Tu flujo financiero está equilibrado.')
-}
+  if (overduePayments.length > 0) {
+    smartInsights.push('Tienes pagos vencidos. Priorízalos para evitar intereses.')
+  }
+
+  if (smartInsights.length === 0) {
+    smartInsights.push('Vas bien. Tu flujo financiero está equilibrado.')
+  }
+
   if (loading) {
     return (
       <div className="db-loading">
@@ -485,10 +508,10 @@ if (smartInsights.length === 0) {
                   <div>
                     <p>{p.name}</p>
                     <span>
-                   {(() => {
-  const [year, month, day] = p.due_date.split('-')
-  return `${day}/${month}/${year}`
-})()}
+                      {(() => {
+                        const [year, month, day] = p.due_date.split('-')
+                        return `${day}/${month}/${year}`
+                      })()}
                     </span>
                   </div>
 
@@ -606,93 +629,94 @@ if (smartInsights.length === 0) {
           </div>
         )}
       </section>
-{/* ===== CONSEJOS FINANCIEROS ===== */}
-<section className="db-section">
-  <div className="db-section-header">
-    <h3>Consejos financieros</h3>
-  </div>
 
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-    
-    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-      <div>💳</div>
-      <div>
-        <strong>Avalancha de deudas</strong>
-        <p style={{ opacity: 0.7 }}>
-          Paga mínimos en todas y concentra el excedente en la de mayor tasa de interés.
-        </p>
-      </div>
-    </div>
+      {/* ===== CONSEJOS FINANCIEROS ===== */}
+      <section className="db-section">
+        <div className="db-section-header">
+          <h3>Consejos financieros</h3>
+        </div>
 
-    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-      <div>📁</div>
-      <div>
-        <strong>Los proyectos se financian antes</strong>
-        <p style={{ opacity: 0.7 }}>
-          Define cuánto necesitas y ahorra quincena a quincena antes de gastar.
-        </p>
-      </div>
-    </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div>💳</div>
+            <div>
+              <strong>Avalancha de deudas</strong>
+              <p style={{ opacity: 0.7 }}>
+                Paga mínimos en todas y concentra el excedente en la de mayor tasa de interés.
+              </p>
+            </div>
+          </div>
 
-    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-      <div>🌱</div>
-      <div>
-        <strong>El tiempo vale más que el monto</strong>
-        <p style={{ opacity: 0.7 }}>
-          Empieza a invertir aunque sea poco. El tiempo es el mayor multiplicador.
-        </p>
-      </div>
-    </div>
+          <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div>📁</div>
+            <div>
+              <strong>Los proyectos se financian antes</strong>
+              <p style={{ opacity: 0.7 }}>
+                Define cuánto necesitas y ahorra quincena a quincena antes de gastar.
+              </p>
+            </div>
+          </div>
 
-    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-      <div>🔒</div>
-      <div>
-        <strong>Fondo de emergencia — primero</strong>
-        <p style={{ opacity: 0.7 }}>
-          Asegura 3 a 6 meses de tus gastos fijos antes de invertir.
-        </p>
-      </div>
-    </div>
+          <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div>🌱</div>
+            <div>
+              <strong>El tiempo vale más que el monto</strong>
+              <p style={{ opacity: 0.7 }}>
+                Empieza a invertir aunque sea poco. El tiempo es el mayor multiplicador.
+              </p>
+            </div>
+          </div>
 
-    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-      <div>📊</div>
-      <div>
-        <strong>Revisa tus estadísticas mensualmente</strong>
-        <p style={{ opacity: 0.7 }}>
-          Identifica dónde crece tu gasto y corrige antes de que escale.
-        </p>
-      </div>
-    </div>
+          <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div>🔒</div>
+            <div>
+              <strong>Fondo de emergencia — primero</strong>
+              <p style={{ opacity: 0.7 }}>
+                Asegura 3 a 6 meses de tus gastos fijos antes de invertir.
+              </p>
+            </div>
+          </div>
 
-    <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-      <div>⚠️</div>
-      <div>
-        <strong>30% máximo en cuotas</strong>
-        <p style={{ opacity: 0.7 }}>
-          Si superas el 30% de tus ingresos en deudas, estás en zona de riesgo.
-        </p>
-      </div>
-    </div>
+          <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div>📊</div>
+            <div>
+              <strong>Revisa tus estadísticas mensualmente</strong>
+              <p style={{ opacity: 0.7 }}>
+                Identifica dónde crece tu gasto y corrige antes de que escale.
+              </p>
+            </div>
+          </div>
 
-  </div>
-</section>
-{/* ===== PARA TI ===== */}
-<section className="db-section">
-  <div className="db-section-header">
-    <h3>💡 Para ti</h3>
-  </div>
+          <div className="card" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div>⚠️</div>
+            <div>
+              <strong>30% máximo en cuotas</strong>
+              <p style={{ opacity: 0.7 }}>
+                Si superas el 30% de tus ingresos en deudas, estás en zona de riesgo.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-  <div className="card" style={{
-    border: '1px solid rgba(34,197,94,0.3)',
-    padding: '14px'
-  }}>
-    {smartInsights.map((msg, i) => (
-      <p key={i} style={{ marginBottom: '6px', opacity: 0.85 }}>
-        {msg}
-      </p>
-    ))}
-  </div>
-</section>
+      {/* ===== PARA TI ===== */}
+      <section className="db-section">
+        <div className="db-section-header">
+          <h3>💡 Para ti</h3>
+        </div>
+
+        <div className="card" style={{
+          border: '1px solid rgba(34,197,94,0.3)',
+          padding: '14px'
+        }}>
+          {smartInsights.map((msg, i) => (
+            <p key={i} style={{ marginBottom: '6px', opacity: 0.85 }}>
+              {msg}
+            </p>
+          ))}
+        </div>
+      </section>
+
       <section className="db-section">
         <div className="db-section-header">
           <h3>Últimos movimientos</h3>
@@ -713,11 +737,19 @@ if (smartInsights.length === 0) {
 
                   <div className="db-movement-info">
                     <p className="db-movement-title">{item.description}</p>
-                    <span className="db-movement-date">
-                      {item.created_at
-                        ? new Date(item.created_at).toLocaleString('es-CO')
-                        : 'Sin fecha'}
-                    </span>
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                      {/* Etiqueta de tipo para payment_scheduled */}
+                      {item.type === 'payment_scheduled' && (
+                        <span className="badge badge--accent" style={{ fontSize: '10px' }}>
+                          Programado
+                        </span>
+                      )}
+                      <span className="db-movement-date">
+                        {item.created_at
+                          ? new Date(item.created_at).toLocaleString('es-CO')
+                          : 'Sin fecha'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 

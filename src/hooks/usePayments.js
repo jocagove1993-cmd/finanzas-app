@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
-import { getPayments, createPayment, markPaymentAsPaid, deletePayment } from '../services/paymentService'
+import {
+  getPayments,
+  createPayment,
+  markPaymentAsPaid,
+  deletePayment,
+  updatePayment,
+} from '../services/paymentService'
 
 export function usePayments(userId) {
   const [payments, setPayments] = useState([])
@@ -12,8 +18,10 @@ export function usePayments(userId) {
     const res = await getPayments(userId)
 
     if (res.success) {
-      setPayments(res.data)
-    }
+  setPayments(res.data)
+} else {
+  console.error('Error cargando pagos:', res.error)
+}
 
     setLoading(false)
   }
@@ -44,11 +52,24 @@ export function usePayments(userId) {
     return res
   }
 
+  // ─────────────────────────────────────────────
+  // EDITAR PAGO
+  // Campos editables: name, amount, due_date
+  // Sincroniza automáticamente el movimiento vinculado
+  // Uso: editPayment(id, { name, amount, due_date })
+  // ─────────────────────────────────────────────
+  const editPayment = async (id, updates) => {
+    const res = await updatePayment(id, updates)
+    if (res.success) await loadPayments()
+    return res
+  }
+
   return {
     payments,
     loading,
     addPayment,
     pay,
     removePayment,
+    editPayment,
   }
 }
