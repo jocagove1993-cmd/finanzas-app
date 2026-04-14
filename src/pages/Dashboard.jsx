@@ -86,7 +86,7 @@ export default function Dashboard({ setActiveView, setSelectedPaymentId, setSele
     .filter(p => p.status === 'pending')
     .map(p => ({
       ...p,
-      date: new Date(p.due_date),
+      date: p.due_date,
     }))
     .sort((a, b) => a.date - b.date)
 
@@ -478,14 +478,17 @@ if (smartInsights.length === 0) {
             )}
 
             {nextPayments.map((p) => {
-              const isOverdue = new Date(p.due_date) < today
+              const isOverdue = new Date(p.due_date + 'T00:00:00') < today
 
               return (
                 <div key={p.id} className="card db-payment-item">
                   <div>
                     <p>{p.name}</p>
                     <span>
-                      {new Date(p.due_date).toLocaleDateString('es-CO')}
+                   {(() => {
+  const [year, month, day] = p.due_date.split('-')
+  return `${day}/${month}/${year}`
+})()}
                     </span>
                   </div>
 
