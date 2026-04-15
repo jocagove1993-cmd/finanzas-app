@@ -204,7 +204,7 @@ const scheduledPayments = payments
     description: `Pago agendado: ${p.name}`,
     amount: Number(p.amount || 0),
     created_at: p.created_at || null,
-    timestamp: Date.now(),
+    timestamp: safeTimestamp(p.created_at || p.due_date)
   }))
     return [...tx, ...contrib, ...scheduledPayments].sort((a, b) => b.timestamp - a.timestamp).slice(0, 6)
       .sort((a, b) => b.timestamp - a.timestamp)
