@@ -196,17 +196,8 @@ export default function Dashboard({ setActiveView, setSelectedPaymentId, setSele
       created_at: c?.created_at || null,
       timestamp: safeTimestamp(c?.created_at),
     }))
-const scheduledPayments = payments
-  .filter(p => p.status === 'pending')
-  .map((p, i) => ({
-    key: `payment-${p.id}-${i}`,
-    type: 'payment_scheduled',
-    description: `Pago agendado: ${p.name}`,
-    amount: Number(p.amount || 0),
-    created_at: p.created_at || null,
-    timestamp: safeTimestamp(p.created_at || p.due_date)
-  }))
-    return [...tx, ...contrib, ...scheduledPayments].sort((a, b) => b.timestamp - a.timestamp).slice(0, 6)
+
+    return [...tx, ...contrib,].sort((a, b) => b.timestamp - a.timestamp).slice(0, 6)
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 6)
   }, [transactions, contributions, payments])
@@ -754,9 +745,25 @@ const scheduledPayments = payments
                 </div>
 
                 <div className="db-movement-right">
-                  <span className="amount amount--medium">
-                    {formatCOP(item.amount)}
-                  </span>
+                  <span
+  className={`amount amount--medium ${
+    item.type === 'income'
+      ? 'amount--income'
+      : item.type === 'expense'
+? 'amount--expense'
+: item.type === 'payment_scheduled'
+? 'amount--scheduled'
+      : 'amount--neutral'
+  }`}
+>
+  {
+  item.type === 'income'
+    ? '+'
+    : item.type === 'expense'
+    ? '-'
+    : ''
+} {formatCOP(item.amount)}
+</span>
                 </div>
               </div>
             ))}

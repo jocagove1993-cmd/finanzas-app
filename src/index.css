@@ -4215,3 +4215,36 @@ textarea {
   color: #fff;
   border: 1px solid #1f2937;
 }
+/* Estilos para los montos diferenciados */
+.movement-amount--income {
+  color: #22c55e !important; /* Verde profesional */
+  font-weight: 600;
+}
+
+.movement-amount--expense,
+.movement-amount--payment_scheduled {
+  color: #ef4444 !important; /* Rojo profesional */
+  font-weight: 600;
+}
+
+.movement-amount--contribution {
+  color: #3b82f6 !important; /* Azul para metas/abonos */
+  font-weight: 600;
+}
+.amount--income {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.amount--expense {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.amount--neutral {
+  color: #94a3b8;
+}
+.amount--scheduled {
+  color: #f59e0b;
+  font-weight: 600;
+}
